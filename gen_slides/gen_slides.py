@@ -1,27 +1,42 @@
 import argparse
 import json
 import os
+import errno
 import requests
 from uuid import uuid4
+
+from jinja2.environment import Environment
+from jinja2.loaders import PackageLoader
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data')
 parser.add_argument('schedule_path', help='Path to schedule.json')
 parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
 
 args = parser.parse_args()
-# def generate_html(slide):
-#     html_room_dir = os.path.join(html_dir, slide['room'].name, str(slide['day'].date))
-#     try:
-#         os.makedirs(html_room_dir)
-#     except FileExistsError:
-#         pass
-#     file_name = '{}_{}.html'.format(slide['next_start'].strftime('%H%M%S'), slide['slug'])
-#     html_path = os.path.join(html_room_dir, file_name)
-#     html = loader.render_to_string('slides/slide.html', slide)
-#     html_file = open(html_path, 'wb')
-#     html_file.write(html.encode('utf8'))
-#     html_file.close()
-#     html_paths.append(html_path)
+
+
+def generate_html(slide):
+        html_room_dir = os.path.join(html_dir, slide['room'], str(slide['date']))
+        try:
+            os.makedirs(html_room_dir)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+            else:
+                raise
+
+        file_name = '{}_{}.html'.format(slide['talk']['start_time'][0], slide['slug'])
+        html_path = os.path.join(html_room_dir, file_name)
+
+        env = Environment(loader=PackageLoader('gen_slides', 'templates'))
+        template = env.get_template('slide.html')
+        print(template.render(slide=slide))
+        return template.render(slide=slide)
+        # html = loader.render_to_string('slides/slide.html', slide)
+        # html_file = open(html_path, 'wb')
+        # html_file.write(html.encode('utf8'))
+        # html_file.close()
+        # html_paths.append(html_path)
 #
 #
 # def html_to_png(html_path):
@@ -42,8 +57,6 @@ args = parser.parse_args()
 #         html_path,
 #     ])
 #     return png_path + '-full.png'
-#
-#
 
 
 def get_slides():
@@ -55,14 +68,15 @@ def get_slides():
     for day in schedule['days']:
         for entry in day['entries']:
             if 'talks' in entry.keys():
-                for room, talk in entry['talks'].iteritems():
-                    if talk:
-                        response = requests.get(args.talk_root + talk + '.json')
+                for room, slug in entry['talks'].iteritems():
+                    if slug:  # slug can be empty if there's not a talk scheduled at that time
+                        response = requests.get(args.talk_root + slug + '.json')
                         assert response.status_code == 200
                         slide = {
                             'date': day['date'],
                             'room': room,
-                            'talk': response.json()
+                            'talk': response.json(),
+                            'slug': slug
                         }
                         slides.append(slide)
 
@@ -71,26 +85,7 @@ def get_slides():
 base_dir = '/tmp/slides.' + uuid4().hex
 html_dir = os.path.join(base_dir, 'html')
 
-# try:
 os.makedirs(html_dir)
-html_paths = []
 
 slides = get_slides()
-print(slides)
-# slides = Slides(days, talks)
-# print(talk_jsons)
-    # for slide in Slides():
-    #     generate_html(slide)
-#
-#     png_paths = []
-#     for html_path in html_paths:
-#         png_paths.append(html_to_png(html_path))
-#     print(png_paths)
-#
-#     zip_path = os.path.join(settings.MEDIA_ROOT, 'slides.zip')
-#     zip = zipfile.ZipFile(zip_path, 'w')
-#     for path in png_paths:
-#         rel_path = '/'.join(path.split('/')[-3:])
-#         zip.write(path, rel_path)
-# finally:
-#     shutil.rmtree(base_dir)
+html_files = map(generate_html, slides)

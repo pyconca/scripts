@@ -1,0 +1,39 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        /* A font by Jos Buivenga (exljbris) -> www.exljbris.com */
+        @font-face {
+            font-family: 'MuseoSans';
+            src: url('{{ BASE_DIR }}/static/fonts/MuseoSans_500.otf');
+        }
+        html,
+        body {
+            background-color: #FFFFFF;
+            font-family: 'MuseoSans';
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #ee6d66;
+            text-transform: uppercase;
+            font-size: 38px;
+        }
+        p {
+            color: #249cd7;
+            font-size: 28px;
+        }
+
+        div {
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<div>
+    <!--<img src="{{ BASE_DIR }}/static/images/logo_alpha.png" height="200px"/>-->
+    <h1>{{ slide['date'] }}</h1>
+</div>
+</body>
+</html>
