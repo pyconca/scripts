@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import subprocess
 from jinja2.environment import Environment
-from jinja2.loaders import PackageLoader
+from jinja2.loaders import FileSystemLoader
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data')
 parser.add_argument('schedule_path', help='Path to schedule.json')
@@ -20,31 +20,33 @@ args = parser.parse_args()
 
 
 def generate_html(slide):
-        html_room_dir = os.path.join(html_dir, slide['room'], str(slide['date']))
-        try:
-            os.makedirs(html_room_dir)
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                pass
-            else:
-                raise
+    html_room_dir = os.path.join(html_dir, slide['room'], str(slide['date']))
+    try:
+        os.makedirs(html_room_dir)
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            pass
+        else:
+            raise
 
-        file_name = '{}_{}.html'.format(slide['talk']['start_time'][0], slide['slug'])
-        html_path = os.path.join(html_room_dir, file_name)
+    file_name = '{}_{}.html'.format(slide['talk']['start_time'][0], slide['slug'])
+    html_path = os.path.join(html_room_dir, file_name)
 
-        env = Environment(loader=PackageLoader('gen_slides', 'templates'))
-        template = env.get_template('slide.html')
-        html = template.render(slide=slide)
-        html_file = open(html_path, 'wb')
-        html_file.write(html.encode('utf8'))
-        html_file.close()
-        return html_path
+    env = Environment(loader=FileSystemLoader('gen_slides/templates'))
+    template = env.get_template('slide.html')
+    html = template.render(slide=slide)
+    html_file = open(html_path, 'wb')
+    html_file.write(html.encode('utf8'))
+    html_file.close()
+    return html_path
 
 
 def html_to_png(html_path):
     png_path = html_path.replace('/html/', '/png/') \
         .replace('.html', '')
     png_dir, png_name = os.path.split(png_path)
+
+    fnull = open(os.devnull, 'w')
     subprocess.check_call([
         args.webkit2png_path,
         '-F',  # just full size image
@@ -57,7 +59,7 @@ def html_to_png(html_path):
         '-o',
         png_name,
         html_path,
-    ])
+    ], stdout=fnull)
     return png_path + '-full.png'
 
 
@@ -89,6 +91,9 @@ html_dir = os.path.join(base_dir, 'html')
 
 os.makedirs(html_dir)
 
+print('Retrieving schedule and talk information')
 slides = get_slides()
+print('Generating HTML slides')
 html_paths = map(generate_html, slides)
+print('Converting HTML slides to PNGs')
 png_paths = map(html_to_png, html_paths)
