@@ -13,8 +13,8 @@ parser = argparse.ArgumentParser(description='Generate YouTube video slides from
 parser.add_argument('schedule_path', help='Path to schedule.json')
 parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
-parser.add_argument('--height', dest='height', help='Height for the slides', default='1024')
-parser.add_argument('--width', dest='width', help='Width for the slides', default='768')
+parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
+parser.add_argument('--width', dest='width', help='Width for the slides', default='1024')
 
 args = parser.parse_args()
 
