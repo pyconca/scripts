@@ -1,11 +1,11 @@
 import argparse
+import errno
 import json
 import os
-import errno
 import requests
-from uuid import uuid4
-
+import shutil
 import subprocess
+
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
@@ -15,6 +15,7 @@ parser.add_argument('--talk-root', dest='talk_root', help='URL to the root direc
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
 parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
 parser.add_argument('--width', dest='width', help='Width for the slides', default='1024')
+parser.add_argument('--output-dir', dest='output_dir', help='Path to output directory', default='gen_slides/output')
 
 args = parser.parse_args()
 
@@ -86,9 +87,10 @@ def get_slides():
 
     return slides
 
-base_dir = '/tmp/slides.' + uuid4().hex
+base_dir = args.output_dir
 html_dir = os.path.join(base_dir, 'html')
 
+shutil.rmtree(base_dir)
 os.makedirs(html_dir)
 
 print('Retrieving schedule and talk information')
