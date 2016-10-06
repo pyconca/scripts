@@ -30,7 +30,8 @@ def generate_html(slide):
         else:
             raise
 
-    file_name = '{}_{}.html'.format(slide['talk']['start_time'][0], slide['slug'])
+    start_time = slide['talk']['start_time'][0].replace(':', '')  # it's no good to have ':' in a filename
+    file_name = '{}_{}.html'.format(start_time, slide['slug'])
     html_path = os.path.join(html_room_dir, file_name)
 
     env = Environment(loader=FileSystemLoader('gen_slides/templates'))
