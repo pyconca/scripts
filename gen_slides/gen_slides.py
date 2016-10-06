@@ -1,9 +1,8 @@
 import argparse
 import json
 import os
+import requests
 from uuid import uuid4
-
-from pip._vendor import requests
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data')
 parser.add_argument('schedule_path', help='Path to schedule.json')
@@ -47,11 +46,11 @@ args = parser.parse_args()
 #
 
 
-def get_talk_jsons():
+def get_slides():
     with open(args.schedule_path) as schedule_file:
         schedule = json.load(schedule_file)
 
-    talks = {}
+    slides = []
 
     for day in schedule['days']:
         for entry in day['entries']:
@@ -60,12 +59,14 @@ def get_talk_jsons():
                     if talk:
                         response = requests.get(args.talk_root + talk + '.json')
                         assert response.status_code == 200
-                        talks[talk] = response.json()
+                        slide = {
+                            'date': day['date'],
+                            'room': room,
+                            'talk': response.json()
+                        }
+                        slides.append(slide)
 
-    return {
-        'schedule': schedule['days'],
-        'talks': talks
-    }
+    return slides
 
 base_dir = '/tmp/slides.' + uuid4().hex
 html_dir = os.path.join(base_dir, 'html')
@@ -74,8 +75,9 @@ html_dir = os.path.join(base_dir, 'html')
 os.makedirs(html_dir)
 html_paths = []
 
-talk_jsons = get_talk_jsons()
-
+slides = get_slides()
+print(slides)
+# slides = Slides(days, talks)
 # print(talk_jsons)
     # for slide in Slides():
     #     generate_html(slide)
