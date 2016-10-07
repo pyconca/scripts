@@ -22,6 +22,7 @@ args = parser.parse_args()
 
 def generate_html(slide):
     html_room_dir = os.path.join(html_dir, slide['room'], str(slide['date']))
+
     try:
         os.makedirs(html_room_dir)
     except OSError as e:
@@ -81,10 +82,25 @@ def get_slides():
                         slide = {
                             'date': day['date'],
                             'room': room,
-                            'talk': response.json(),
-                            'slug': slug
+                            'slug': slug,
+                            'talk': response.json()
                         }
                         slides.append(slide)
+            elif 'keynote' in entry['title'].lower():
+                # there is special handling for keynotes because they're not in the same format as other talks
+                slug = 'keynote-' + entry['content'].lower().replace(' ', '-')  # for keynotes, entry['content'] is speaker's name
+                slide = {
+                    'date': day['date'],
+                    'room': '1-067',
+                    'slug': slug,
+                    'talk': {
+                        'title': [entry['title']],
+                        'speakers': [entry['content']],
+                        'start_time': [entry['start_time']],
+                    }
+                }
+
+                slides.append(slide)
 
     return slides
 
