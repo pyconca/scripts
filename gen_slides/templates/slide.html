@@ -1,0 +1,49 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+
+        body {
+            color: #333;
+            font-family: "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+            line-height: 1.5;
+        }
+
+        .logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+        }
+
+        .dates {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 1.75em;
+        }
+
+        .title {
+            position: fixed;
+            left: 260px;
+            top: 225px;
+            font-size: 1.75em;
+        }
+
+        .speaker {
+            position: fixed;
+            left: 260px;
+            top: 285px;
+            font-size: 1.75em;
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <img class="logo" src="{{ BASE_DIR }}/images/2016-pycon-logo.svg" height="200px"/>
+        <div class="dates">12-15 November 2016, Toronto</div>
+        <div class="title">{{ slide['talk']['title'][0] }}</div>
+        <div class="speaker">{{ slide['talk']['speakers'][0] }}</div>
+    </div>
+</body>
+</html>
