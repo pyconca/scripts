@@ -4,10 +4,6 @@ This repository will house various scripts that can be used from year-to-year.
 
 ## Installation
 
-Install webkit2png
-
-    $ brew install webkit2png
-
 Clone the repo
 
     $ git checkout https://github.com/pyconca/scripts.git
@@ -24,6 +20,12 @@ Install PIP requirements
 
 The Slide Generation script takes certain JSON file with schedule and talk data, and creates PNG slides. The slides are
 used as intros to the YouTube videos of PyCon talks.
+
+### Installation
+
+Install webkit2png
+
+    $ brew install webkit2png
 
 ### Running
 
