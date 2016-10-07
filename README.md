@@ -31,10 +31,9 @@ Install webkit2png
 
 Change directories to the root directory of this repo, and run:
 
-    (scripts) $ python gen_slides/gen_slides.py ~/projects/2016-web/web/data/schedule.json
+    (scripts) $ python gen_slides/gen_slides.py
 
-[schedule.json](https://github.com/pyconca/2016-web/blob/master/web/data/schedule.json) is a JSON file with the
-schedule for PyCon Canada.
+The slides will be in `gen_slides/output`.
 
 For more options run
 
