@@ -20,13 +20,18 @@ Install PIP requirements
 
     (scripts) $ pip install -r requirements.txt
 
-## Running the Slide Creation Script
+## Slide Generation Script
+
+The Slide Generation script takes certain JSON file with schedule and talk data, and creates PNG slides. The slides are
+used as intros to the YouTube videos of PyCon talks.
+
+### Running
 
 Change directories to the root directory of this repo, and run:
 
     (scripts) $ python gen_slides/gen_slides.py ~/projects/2016-web/web/data/schedule.json
 
-`[schedule.json](https://github.com/pyconca/2016-web/blob/master/web/data/schedule.json)` is a JSON file with the
+[schedule.json](https://github.com/pyconca/2016-web/blob/master/web/data/schedule.json) is a JSON file with the
 schedule for PyCon Canada.
 
 For more options run
