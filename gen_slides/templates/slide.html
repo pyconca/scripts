@@ -2,38 +2,40 @@
 <head>
     <meta charset="UTF-8">
     <style type="text/css">
-        /* A font by Jos Buivenga (exljbris) -> www.exljbris.com */
-        @font-face {
-            font-family: 'MuseoSans';
-            src: url('{{ BASE_DIR }}/static/fonts/MuseoSans_500.otf');
-        }
-        html,
+
         body {
-            background-color: #FFFFFF;
-            font-family: 'MuseoSans';
-            line-height: 1.6;
+            color: #333;
+            font-family: "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+            line-height: 1.5;
         }
 
-        h1 {
-            color: #ee6d66;
-            text-transform: uppercase;
-            font-size: 38px;
-        }
-        p {
-            color: #249cd7;
-            font-size: 28px;
+        .logo {
+            position: fixed;
+            top: 30px;
+            left: 30px;
         }
 
-        div {
-            text-align: center;
+        .dates {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-size: 1.75em;
+        }
+
+        .title {
+            position: fixed;
+            left: 260px;
+            top: 225px;
+            font-size: 1.75em;
         }
 
     </style>
 </head>
 <body>
-<div>
-    <!--<img src="{{ BASE_DIR }}/static/images/logo_alpha.png" height="200px"/>-->
-    <h1>{{ slide['date'] }}</h1>
-</div>
+    <div>
+        <img class="logo" src="{{ BASE_DIR }}/images/2016-pycon-logo.svg" height="200px"/>
+        <div class="dates">12-15 November 2016, Toronto</div>
+        <div class="title">{{ slide['talk']['title'][0] }}</div>
+    </div>
 </body>
 </html>

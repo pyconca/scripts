@@ -36,7 +36,7 @@ def generate_html(slide):
 
     env = Environment(loader=FileSystemLoader('gen_slides/templates'))
     template = env.get_template('slide.html')
-    html = template.render(slide=slide)
+    html = template.render(slide=slide, BASE_DIR=os.getcwd() + '/gen_slides')
     html_file = open(html_path, 'wb')
     html_file.write(html.encode('utf8'))
     html_file.close()
