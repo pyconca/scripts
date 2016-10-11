@@ -108,7 +108,14 @@ def get_slides():
 base_dir = args.output_dir
 html_dir = os.path.join(base_dir, 'html')
 
-shutil.rmtree(base_dir)
+try:
+    shutil.rmtree(base_dir)
+except OSError as e:
+    if e.errno == errno.ENOENT:  # no such file or directory
+        pass
+    else:
+        raise
+
 os.makedirs(html_dir)
 
 print('Retrieving schedule and talk information')
