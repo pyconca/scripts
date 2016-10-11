@@ -6,7 +6,7 @@ This repository will house various scripts that can be used from year-to-year.
 
 Clone the repo
 
-    $ git checkout https://github.com/pyconca/scripts.git
+    $ git clone https://github.com/pyconca/scripts.git
 
 Create a virtualenv
 
