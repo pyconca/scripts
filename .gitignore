@@ -1,4 +1,4 @@
 .idea
 *.pyc
 *.DS_Store
-gen_slides/output
+create_slides/output

@@ -15,7 +15,7 @@ parser.add_argument('--talk-root', dest='talk_root', help='URL to the root direc
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
 parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
 parser.add_argument('--width', dest='width', help='Width for the slides', default='1024')
-parser.add_argument('--output-dir', dest='output_dir', help='Path to output directory', default='gen_slides/output')
+parser.add_argument('--output-dir', dest='output_dir', help='Path to output directory', default='create_slides/output')
 
 args = parser.parse_args()
 
@@ -35,9 +35,9 @@ def generate_html(slide):
     file_name = '{}_{}.html'.format(start_time, slide['slug'])
     html_path = os.path.join(html_room_dir, file_name)
 
-    env = Environment(loader=FileSystemLoader('gen_slides/templates'))
+    env = Environment(loader=FileSystemLoader('create_slides/templates'))
     template = env.get_template('slide.html')
-    html = template.render(slide=slide, BASE_DIR=os.getcwd() + '/gen_slides')
+    html = template.render(slide=slide, BASE_DIR=os.getcwd() + '/create_slides')
     html_file = open(html_path, 'wb')
     html_file.write(html.encode('utf8'))
     html_file.close()
