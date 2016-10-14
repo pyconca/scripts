@@ -10,7 +10,7 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data')
-parser.add_argument('--schedule_path', help='URL to schedule.json', default='https://raw.githubusercontent.com/pyconca/2016-web/master/web/data/schedule.json')
+parser.add_argument('--schedule_path', help='URL to schedule.json', default='https://2016.pycon.ca/en/schedule/schedule.json')
 parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
 parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
