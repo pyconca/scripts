@@ -13,8 +13,8 @@ try:
 except ImportError:
     flags = None
 
-# # If modifying these scopes, delete your previously saved credentials
-# # at ~/.credentials/sheets.googleapis.com-python-quickstart.json
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/sheets.googleapis.com-pyconca-video-production.json
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Video Production'
@@ -42,7 +42,7 @@ def get_credentials():
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store)
-        else: # Needed only for compatibility with Python 2.6
+        else:  # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
@@ -61,12 +61,64 @@ class Spreadsheet(object):
 
     def create_header(self):
         body = {
-            'values': [['test', '123', 'test2']]
+            'values': [
+                [
+                    'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube Name',
+                    'Videos Uploaded to YouTube', 'YouTube URL', 'YouTube Status', 'Notes'
+                ]
+            ]
         }
 
         self.service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range='A1', valueInputOption='RAW', body=body
         ).execute()
+
+        requests = []
+
+        # Turn header into a 'frozen' row that always stays at the top of the sheet when scrolling
+        requests.append({
+            'updateSheetProperties': {
+                'properties': {
+                    'gridProperties': {
+                        'frozenRowCount': 1
+                    }
+                },
+                'fields': 'gridProperties.frozenRowCount'
+            }
+        })
+
+        # Format header
+        requests.append({
+            'repeatCell': {
+                'range': {
+                    'startRowIndex': 0,
+                    'endRowIndex': 1
+                },
+                'cell': {
+                    'userEnteredFormat': {
+                        'backgroundColor': {
+                            'red': 1.0,
+                            'green': 1.0,
+                            'blue': 1.0
+                        },
+                        'horizontalAlignment': 'CENTER',
+                        'textFormat': {
+                            'foregroundColor': {
+                                'red': 0.18,
+                                'green': 0.48,
+                                'blue': 0.83
+                            },
+                            'fontSize': 12,
+                            'bold': True
+                        }
+                    }
+                },
+                'fields': 'userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)'
+            }
+        })
+
+        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+                                           body={'requests': requests}).execute()
 
 
 spreadsheet = Spreadsheet('1bGHyPdeUy1QCMQdHzNgtY3KBJoqrVxWu32DuusczC88')
