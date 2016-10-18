@@ -64,7 +64,7 @@ class Spreadsheet(object):
             'values': [
                 [
                     'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube Name',
-                    'Videos Uploaded to YouTube', 'YouTube URL', 'YouTube Status', 'Notes'
+                    'Video Uploaded to YouTube', 'YouTube URL', 'YouTube Status', 'Notes'
                 ]
             ]
         }
