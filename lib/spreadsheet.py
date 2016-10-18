@@ -59,10 +59,12 @@ class Spreadsheet(object):
         self.spreadsheet_id = spreadsheet_id
 
     def create_header(self):
+        """Creates and formats the header of the spreadsheet"""
+
         body = {
             'values': [
                 [
-                    'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube Name',
+                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube Name',
                     'Video Uploaded to YouTube', 'YouTube URL', 'YouTube Status', 'Notes'
                 ]
             ]
@@ -118,3 +120,27 @@ class Spreadsheet(object):
 
         self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                            body={'requests': requests}).execute()
+
+    def add_talks(self, talks):
+        """Takes talks and adds them to the spreadsheet. Will overwrite any existing data"""
+
+        values = [
+            [
+                talk['slug'],                   # Slug
+                talk['date'],                   # Date
+                talk['start_time'][0],          # Time
+                talk['room'],                   # Room
+                talk['title'][0],               # Title
+                talk['speakers'][0],            # Speakers
+                '',                             # YouTube Name
+                'No',                           # Uploaded to YouTube?
+            ]
+            for talk in talks
+        ]
+        body = {
+            'values': values
+        }
+
+        self.service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet_id, range='A2', valueInputOption='RAW', body=body
+        ).execute()

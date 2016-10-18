@@ -8,9 +8,9 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 from lib.talks import get_talks
-from lib.talks import parser as slides_parser
+from lib.talks import parser as talks_parser
 
-parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=[slides_parser])
+parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=[talks_parser])
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
 parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
 parser.add_argument('--width', dest='width', help='Width for the slides', default='1024')
