@@ -31,10 +31,10 @@ Install webkit2png
 
 Change directories to the root directory of this repo, and run:
 
-    (scripts) $ python create_slides/create_slides.py
+    (scripts) $ PYTHONPATH=. python create_slides/create_slides.py
 
 The slides will be in `create_slides/output`.
 
 For more options run
 
-    (scripts) $ python create_slides/create_slides.py --help
+    (scripts) $ PYTHONPATH=. python create_slides/create_slides.py --help

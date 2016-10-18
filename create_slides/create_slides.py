@@ -1,17 +1,16 @@
 import argparse
 import errno
-import json
 import os
-import requests
 import shutil
 import subprocess
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
-parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data')
-parser.add_argument('--schedule_path', help='URL to schedule.json', default='https://raw.githubusercontent.com/pyconca/2016-web/master/web/data/schedule.json')
-parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
+from lib.slides import get_slides
+from lib.slides import parser as slides_parser
+
+parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=[slides_parser])
 parser.add_argument('--webkit2png-path', dest='webkit2png_path', help='Path for webkit2png executable', default='/usr/local/bin/webkit2png')
 parser.add_argument('--height', dest='height', help='Height for the slides', default='768')
 parser.add_argument('--width', dest='width', help='Width for the slides', default='1024')
@@ -66,45 +65,6 @@ def html_to_png(html_path):
     return png_path + '-full.png'
 
 
-def get_slides():
-    response = requests.get(args.schedule_path)
-    assert response.status_code == 200
-    schedule = response.json()
-
-    slides = []
-
-    for day in schedule['days']:
-        for entry in day['entries']:
-            if 'talks' in entry.keys():
-                for room, slug in entry['talks'].iteritems():
-                    if slug:  # slug can be empty if there's not a talk scheduled at that time
-                        response = requests.get(args.talk_root + slug + '.json')
-                        assert response.status_code == 200
-                        slide = {
-                            'date': day['date'],
-                            'room': room,
-                            'slug': slug,
-                            'talk': response.json()
-                        }
-                        slides.append(slide)
-            elif 'keynote' in entry['title'].lower():
-                # there is special handling for keynotes because they're not in the same format as other talks
-                slug = 'keynote-' + entry['content'].lower().replace(' ', '-')  # for keynotes, entry['content'] is speaker's name
-                slide = {
-                    'date': day['date'],
-                    'room': '1-067',
-                    'slug': slug,
-                    'talk': {
-                        'title': [entry['title']],
-                        'speakers': [entry['content']],
-                        'start_time': [entry['start_time']],
-                    }
-                }
-
-                slides.append(slide)
-
-    return slides
-
 base_dir = args.output_dir
 html_dir = os.path.join(base_dir, 'html')
 
@@ -119,7 +79,7 @@ except OSError as e:
 os.makedirs(html_dir)
 
 print('Retrieving schedule and talk information')
-slides = get_slides()
+slides = get_slides(args.schedule_path, args.talk_root)
 print('Generating HTML slides')
 html_paths = map(generate_html, slides)
 print('Converting HTML slides to PNGs')
