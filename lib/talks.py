@@ -7,12 +7,12 @@ parser.add_argument('--schedule-path', dest='schedule_path', help='URL to schedu
 parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
 
 
-def get_slides(schedule_path, talk_root):
+def get_talks(schedule_path, talk_root):
     response = requests.get(schedule_path)
     assert response.status_code == 200
     schedule = response.json()
 
-    slides = []
+    talks = []
 
     for day in schedule['days']:
         for entry in day['entries']:
@@ -21,27 +21,27 @@ def get_slides(schedule_path, talk_root):
                     if slug:  # slug can be empty if there's not a talk scheduled at that time
                         response = requests.get(talk_root + slug + '.json')
                         assert response.status_code == 200
-                        slide = {
-                            'date': day['date'],
+                        talk = {
                             'room': room,
                             'slug': slug,
-                            'talk': response.json()
                         }
-                        slides.append(slide)
+
+                        talk.update(response.json())
+                        talk['date'] = talk['date'][0]
+
+                        talks.append(talk)
             elif 'keynote' in entry['title'].lower():
                 # there is special handling for keynotes because they're not in the same format as other talks
                 slug = 'keynote-' + entry['content'].lower().replace(' ', '-')  # for keynotes, entry['content'] is speaker's name
-                slide = {
+                talk = {
                     'date': day['date'],
                     'room': '1-067',
                     'slug': slug,
-                    'talk': {
-                        'title': [entry['title']],
-                        'speakers': [entry['content']],
-                        'start_time': [entry['start_time']],
-                    }
+                    'title': [entry['title']],
+                    'speakers': [entry['content']],
+                    'start_time': [entry['start_time']]
                 }
 
-                slides.append(slide)
+                talks.append(talk)
 
-    return slides
+    return talks
