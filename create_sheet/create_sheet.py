@@ -12,7 +12,12 @@ args = parser.parse_args()
 
 
 spreadsheet = Spreadsheet(args.spreadsheet_id)
+print('Creating spreadsheet header')
 spreadsheet.create_header()
+print('Getting talks')
 talks = get_talks(args.schedule_path, args.talk_root)
 sorted(talks, key=itemgetter('date', 'start_time', 'room'))
+print('Adding talks to spreadsheet')
 spreadsheet.add_talks(talks)
+print('Spreadsheet populated!')
+print('URL: https://docs.google.com/spreadsheets/d/' + spreadsheet.spreadsheet_id)
