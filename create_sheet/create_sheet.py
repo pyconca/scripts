@@ -1,4 +1,5 @@
 import argparse
+from operator import itemgetter
 
 from lib.spreadsheet import Spreadsheet
 from lib.talks import get_talks
@@ -13,4 +14,5 @@ args = parser.parse_args()
 spreadsheet = Spreadsheet(args.spreadsheet_id)
 spreadsheet.create_header()
 talks = get_talks(args.schedule_path, args.talk_root)
+sorted(talks, key=itemgetter('date', 'start_time', 'room'))
 spreadsheet.add_talks(talks)

@@ -18,9 +18,10 @@ def get_talks(schedule_path, talk_root):
         for entry in day['entries']:
             if 'talks' in entry.keys():
                 for room, slug in entry['talks'].iteritems():
-                    if slug:  # slug can be empty if there's not a talk scheduled at that time
+                    if slug and not room == 'tutorial':  # Filter out tutorials, and no slug (which means there's no talk scheduled)
                         response = requests.get(talk_root + slug + '.json')
                         assert response.status_code == 200
+
                         talk = {
                             'room': room,
                             'slug': slug,
