@@ -5,11 +5,12 @@ from lib.talks import get_talks
 from lib.talks import parser as talks_parser
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=[talks_parser])
+parser.add_argument('spreadsheet_id', help='Google Spreadsheet ID')
 
 args = parser.parse_args()
 
 
-spreadsheet = Spreadsheet('1bGHyPdeUy1QCMQdHzNgtY3KBJoqrVxWu32DuusczC88')
+spreadsheet = Spreadsheet(args.spreadsheet_id)
 spreadsheet.create_header()
 talks = get_talks(args.schedule_path, args.talk_root)
 spreadsheet.add_talks(talks)
