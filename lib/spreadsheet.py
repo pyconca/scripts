@@ -112,8 +112,83 @@ class Spreadsheet(object):
         self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                            body={'requests': requests}).execute()
 
+    def add_conditional_formatting(self):
+        requests = []
+
+        # Make "Uploaded to YouTube" column values green if equal to 'Yes'
+        requests.append({
+            'addConditionalFormatRule': {
+                'rule': {
+                    'ranges': [
+                        {
+                            'sheetId': 0,
+                            'startRowIndex': 1,
+                            'startColumnIndex': 7,
+                            'endColumnIndex': 8,
+                        }
+                    ],
+                    'booleanRule': {
+                        'condition': {
+                            'type': 'TEXT_CONTAINS',
+                            'values': [
+                                {
+                                    'userEnteredValue': 'Yes'
+                                }
+
+                            ]
+                        },
+                        'format': {
+                            'backgroundColor': {
+                                'red': 0.18,
+                                'green': 0.83,
+                                'blue': 0.43,
+                            }
+                        }
+                    }
+                },
+                'index': 0
+            }
+        })
+
+        # Make "Uploaded to YouTube" column values red if equal to anything but 'Yes'
+        requests.append({
+            'addConditionalFormatRule': {
+                'rule': {
+                    'ranges': [
+                        {
+                            'sheetId': 0,
+                            'startRowIndex': 1,
+                            'startColumnIndex': 7,
+                            'endColumnIndex': 8,
+                        }
+                    ],
+                    'booleanRule': {
+                        'condition': {
+                            'type': 'TEXT_NOT_CONTAINS',
+                            'values': [
+                                {
+                                    'userEnteredValue': 'Yes'
+                                }
+                            ]
+                        },
+                        'format': {
+                            'backgroundColor': {
+                                'red': 0.83,
+                                'green': 0.18,
+                                'blue': 0.18,
+                            }
+                        }
+                    }
+                },
+                'index': 1
+            }
+        })
+
+        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+                                                body={'requests': requests}).execute()
+
     def add_talks(self, talks):
-        """Takes talks and adds them to the spreadsheet. Will overwrite any existing data"""
+        """Takes Talks and adds them to the spreadsheet. Will overwrite any existing data"""
 
         values = [
             [
