@@ -51,4 +51,9 @@ videos have been uploaded to YouTube.
 
 ### Running
 
-    (scripts) $ PYTHONPATH=. python populate_sheet/populate_sheet.py
+You must first create a spreadsheet in the shared PyCon Canada Google Drive, then copy the spreadsheet's ID from the
+URL.
+
+You can get
+
+    (scripts) $ PYTHONPATH=. python populate_sheet/populate_sheet.py [SPREADSHEET_ID]
