@@ -28,7 +28,7 @@ def get_talks(schedule_path, talk_root):
                         }
 
                         talk.update(response.json())
-                        talk['date'] = talk['date'][0]
+                        talk['date'] = talk['date']
 
                         talks.append(talk)
             elif 'keynote' in entry['title'].lower():
@@ -38,9 +38,9 @@ def get_talks(schedule_path, talk_root):
                     'date': day['date'],
                     'room': '1-067',
                     'slug': slug,
-                    'title': [entry['title']],
-                    'speakers': [entry['content']],
-                    'start_time': [entry['start_time']]
+                    'title': entry['title'],
+                    'speakers': entry['content'],
+                    'start_time': entry['start_time']
                 }
 
                 talks.append(talk)

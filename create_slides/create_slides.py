@@ -30,7 +30,7 @@ def generate_html(talk):
         else:
             raise
 
-    start_time = talk['start_time'][0].replace(':', '')  # it's no good to have ':' in a filename
+    start_time = talk['start_time'].replace(':', '')  # it's no good to have ':' in a filename
     file_name = '{}_{}.html'.format(start_time, talk['slug'])
     html_path = os.path.join(html_room_dir, file_name)
 

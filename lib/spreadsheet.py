@@ -198,10 +198,10 @@ class Spreadsheet(object):
             [
                 talk['slug'],                   # Slug
                 talk['date'],                   # Date
-                talk['start_time'][0],          # Time
+                talk['start_time'],          # Time
                 talk['room'],                   # Room
-                talk['title'][0],               # Title
-                talk['speakers'][0],            # Speakers
+                talk['title'],               # Title
+                talk['speakers'],            # Speakers
                 '',                             # YouTube Name
                 'No',                           # Uploaded to YouTube?
             ]
