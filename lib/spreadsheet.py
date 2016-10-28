@@ -59,8 +59,8 @@ class Spreadsheet(object):
         body = {
             'values': [
                 [
-                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube Name',
-                    'Video Uploaded to YouTube', 'YouTube URL', 'YouTube Status', 'Notes'
+                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube ID',
+                    'YouTube Status', 'Notes'
                 ]
             ]
         }
@@ -127,19 +127,13 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 7,
-                            'endColumnIndex': 8,
+                            'startColumnIndex': 6,
+                            'endColumnIndex': 7,
                         }
                     ],
                     'booleanRule': {
                         'condition': {
-                            'type': 'TEXT_CONTAINS',
-                            'values': [
-                                {
-                                    'userEnteredValue': 'Yes'
-                                }
-
-                            ]
+                            'type': 'NOT_BLANK'
                         },
                         'format': {
                             'backgroundColor': {
@@ -162,18 +156,13 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 7,
-                            'endColumnIndex': 8,
+                            'startColumnIndex': 6,
+                            'endColumnIndex': 7,
                         }
                     ],
                     'booleanRule': {
                         'condition': {
-                            'type': 'TEXT_NOT_CONTAINS',
-                            'values': [
-                                {
-                                    'userEnteredValue': 'Yes'
-                                }
-                            ]
+                            'type': 'BLANK'
                         },
                         'format': {
                             'backgroundColor': {
@@ -202,8 +191,6 @@ class Spreadsheet(object):
                 talk['room'],                   # Room
                 talk['title'],               # Title
                 talk['speakers'],            # Speakers
-                '',                             # YouTube Name
-                'No',                           # Uploaded to YouTube?
             ]
             for talk in talks
         ]
