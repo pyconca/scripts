@@ -6,12 +6,10 @@ from lib.spreadsheet import parser as spreadsheet_parser
 from lib.talks import get_talks
 from lib.talks import parser as talks_parser
 
-
 parent_parsers = [talks_parser, spreadsheet_parser]
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=parent_parsers)
 
 args = parser.parse_args()
-
 
 spreadsheet = Spreadsheet(args.spreadsheet_id)
 print('Creating spreadsheet header')

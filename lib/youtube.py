@@ -37,3 +37,29 @@ video_response = service.videos().list(
     part='contentDetails'
 ).execute()
 
+
+class YouTubeStatus(object):
+
+    PRIVATE = u'private'
+    UNLISTED = u'unlisted'
+    PUBLIC = u'public'
+
+
+class YouTubeVideo(object):
+
+    def __init__(self, youtube_id):
+        self.youtube_id = youtube_id
+
+
+class YouTube(object):
+
+    def get_private_videos(self, ids):
+        response = service.videos().list(
+            id=','.join(ids),
+            part='status'
+        ).execute()
+
+        items = response['items']
+        items = filter(lambda item: item['status']['privacyStatus'] == YouTubeStatus.PRIVATE, items)
+
+        return [YouTubeVideo(item['id']) for item in items]

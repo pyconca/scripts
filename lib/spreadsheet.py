@@ -61,6 +61,7 @@ class SpreadsheetTalk(object):
         self.room = room
         self.title = title
         self.speakers = speakers
+        self.youtube_id = youtube_id
 
 
 class Spreadsheet(object):
