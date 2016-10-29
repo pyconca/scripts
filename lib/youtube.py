@@ -59,7 +59,7 @@ class YouTubeVideo(object):
         body = {
             'id': self.youtube_id,
             'status': {
-                'privacyStatus': YouTubeStatus.PUBLIC
+                'privacyStatus': YouTubeStatus.UNLISTED
             },
             'snippet': self.data['snippet']
         }
