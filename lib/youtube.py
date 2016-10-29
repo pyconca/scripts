@@ -63,7 +63,7 @@ class YouTubeVideo(object):
             'snippet': self.data['snippet']
         }
 
-        service.videos().update(part='status,snippet', body=body).execute()
+        self.data = service.videos().update(part='status,snippet', body=body).execute()
 
 
 class YouTube(object):
