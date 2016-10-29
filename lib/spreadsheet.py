@@ -54,12 +54,13 @@ service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discove
 
 class SpreadsheetTalk(object):
 
-    def __init__(self, slug, date, start_time, room, title, speakers, youtube_id=None):
+    def __init__(self, slug, date, start_time, room, title, description, speakers, youtube_id=None):
         self.slug = slug
         self.date = date
         self.start_time = start_time
         self.room = room
         self.title = title
+        self.description = description
         self.speakers = speakers
         self.youtube_id = youtube_id
 
@@ -75,7 +76,7 @@ class Spreadsheet(object):
         body = {
             'values': [
                 [
-                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube ID',
+                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Description', 'Speaker', 'YouTube ID',
                     'YouTube Status', 'Notes'
                 ]
             ]
@@ -143,8 +144,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 6,
-                            'endColumnIndex': 7,
+                            'startColumnIndex': 7,
+                            'endColumnIndex': 8,
                         }
                     ],
                     'booleanRule': {
@@ -172,8 +173,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 6,
-                            'endColumnIndex': 7,
+                            'startColumnIndex': 7,
+                            'endColumnIndex': 8,
                         }
                     ],
                     'booleanRule': {
@@ -206,6 +207,7 @@ class Spreadsheet(object):
                 talk['start_time'],
                 talk['room'],
                 talk['title'],
+                talk['description'],
                 talk['speakers'],
             ]
             for talk in talks
@@ -220,10 +222,10 @@ class Spreadsheet(object):
 
     def get_youtube_talks(self):
         result = service.spreadsheets().values().get(
-            spreadsheetId=self.spreadsheet_id, range='A2:G'
+            spreadsheetId=self.spreadsheet_id, range='A2:H'
         ).execute()
         values = result.get('values', [])
 
-        # There must be a value in the 7th column to check if there is a YouTube ID
-        values = filter(lambda x: len(x) >= 7 and x[6].strip(), values)
+        # There must be a value in the 8th column to check if there is a YouTube ID
+        values = filter(lambda x: len(x) >= 8 and x[7].strip(), values)
         return [SpreadsheetTalk(*value) for value in values]

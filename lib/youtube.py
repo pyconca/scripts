@@ -49,9 +49,10 @@ class YouTubeVideo(object):
 
     def publish(self, title, description):
         snippet = self.data['snippet']
+
         snippet.update({
             'title': title,
-            'description': description,
+            'description': description.replace('\n', '\n\n'),
             'categoryId': SCIENCE_AND_TECHNOLOGY_CATEGORY_ID
         })
 

@@ -18,4 +18,4 @@ private_videos = youtube.get_private_videos(ids)
 
 for private_video in private_videos:
     talk = filter(lambda x: x.youtube_id == private_video.youtube_id, talks)[0]
-    private_video.publish(talk.title, '')
+    private_video.publish(talk.title, talk.description)

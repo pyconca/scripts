@@ -1,6 +1,7 @@
 import argparse
-import requests
 
+import requests
+from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', add_help=False)
 parser.add_argument('--schedule-path', dest='schedule_path', help='URL to schedule.json', default='https://raw.githubusercontent.com/pyconca/2016-web/master/web/data/schedule.json')
@@ -29,7 +30,10 @@ def get_talks(schedule_path, talk_root):
 
                         talk.update(response.json())
                         talk['date'] = talk['date']
-
+                        description = talk['description'] = BeautifulSoup(talk['description'], 'html.parser').get_text()
+                        description = description.split('Bio')[0]
+                        description = description.rsplit('\n', 1)[0]
+                        talk['description'] = description
                         talks.append(talk)
             elif 'keynote' in entry['title'].lower():
                 # there is special handling for keynotes because they're not in the same format as other talks
@@ -40,9 +44,9 @@ def get_talks(schedule_path, talk_root):
                     'slug': slug,
                     'title': entry['title'],
                     'speakers': entry['content'],
-                    'start_time': entry['start_time']
+                    'start_time': entry['start_time'],
+                    'description': ''   # keynotes do not have descriptions
                 }
-
                 talks.append(talk)
 
     return talks
