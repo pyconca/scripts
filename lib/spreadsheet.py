@@ -187,10 +187,10 @@ class Spreadsheet(object):
             [
                 talk['slug'],                   # Slug
                 talk['date'],                   # Date
-                talk['start_time'],          # Time
+                talk['start_time'],             # Time
                 talk['room'],                   # Room
-                talk['title'],               # Title
-                talk['speakers'],            # Speakers
+                talk['title'],                  # Title
+                talk['speakers'],               # Speakers
             ]
             for talk in talks
         ]
