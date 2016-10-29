@@ -1,3 +1,5 @@
+import argparse
+
 import httplib2
 import os
 
@@ -5,6 +7,9 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+
+parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', add_help=False)
+parser.add_argument('spreadsheet_id', help='Google Spreadsheet ID')
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/sheets.googleapis.com-pyconca-video-production.json
@@ -41,16 +46,26 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+credentials = get_credentials()
+http = credentials.authorize(httplib2.Http())
+discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
+service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
+
+
+class SpreadsheetTalk(object):
+
+    def __init__(self, slug, date, start_time, room, title, speakers, youtube_id=None):
+        self.slug = slug
+        self.date = date
+        self.start_time = start_time
+        self.room = room
+        self.title = title
+        self.speakers = speakers
+
 
 class Spreadsheet(object):
 
     def __init__(self, spreadsheet_id):
-        credentials = get_credentials()
-        http = credentials.authorize(httplib2.Http())
-        discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
-        service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
-
-        self.service = service
         self.spreadsheet_id = spreadsheet_id
 
     def create_header(self):
@@ -65,7 +80,7 @@ class Spreadsheet(object):
             ]
         }
 
-        self.service.spreadsheets().values().update(
+        service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range='A1', valueInputOption='RAW', body=body
         ).execute()
 
@@ -113,7 +128,7 @@ class Spreadsheet(object):
             }
         })
 
-        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+        service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                            body={'requests': requests}).execute()
 
     def add_conditional_formatting(self):
@@ -177,7 +192,7 @@ class Spreadsheet(object):
             }
         })
 
-        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+        service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                                 body={'requests': requests}).execute()
 
     def add_talks(self, talks):
@@ -198,6 +213,16 @@ class Spreadsheet(object):
             'values': values
         }
 
-        self.service.spreadsheets().values().update(
+        service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range='A2', valueInputOption='RAW', body=body
         ).execute()
+
+    def get_youtube_talks(self):
+        result = service.spreadsheets().values().get(
+            spreadsheetId=self.spreadsheet_id, range='A2:G'
+        ).execute()
+        values = result.get('values', [])
+
+        # There must be a value in the 7th column to check if there is a YouTube ID
+        values = filter(lambda x: len(x) >= 7 and x[6].strip(), values)
+        return [SpreadsheetTalk(*value) for value in values]

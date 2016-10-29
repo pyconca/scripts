@@ -28,13 +28,12 @@ if credentials is None or credentials.invalid:
     flags = argparser.parse_args()
     credentials = run_flow(flow, store, flags)
 
-youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
+service = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
 
 # Retrieve the contentDetails part of the channel resource for the
 # authenticated user's channel.
-video_response = youtube.videos().list(
+video_response = service.videos().list(
     id='v4dXM35OWWE',
     part='contentDetails'
 ).execute()
 
-print(video_response['items'])
