@@ -54,7 +54,9 @@ service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discove
 
 class SpreadsheetTalk(object):
 
-    def __init__(self, slug, date, start_time, room, title, description, speakers, youtube_id=None):
+    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_id=None):
+        self.spreadsheet = spreadsheet
+        self.row = row
         self.slug = slug
         self.date = date
         self.start_time = start_time
@@ -63,6 +65,25 @@ class SpreadsheetTalk(object):
         self.description = description
         self.speakers = speakers
         self.youtube_id = youtube_id
+
+    @property
+    def published_status(self):
+        """
+        TODO: Update to return actual status
+        """
+        return None
+
+    @published_status.setter
+    def published_status(self, value):
+        range = 'I' + str(self.row)
+
+        body = {
+            'values': [[str(value)]]
+        }
+
+        service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet.spreadsheet_id, range=range, body=body, valueInputOption='RAW'
+        ).execute()
 
 
 class Spreadsheet(object):
@@ -77,7 +98,7 @@ class Spreadsheet(object):
             'values': [
                 [
                     'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Description', 'Speaker', 'YouTube ID',
-                    'YouTube Status', 'Notes'
+                    'Published Status', 'Notes'
                 ]
             ]
         }
@@ -226,6 +247,10 @@ class Spreadsheet(object):
         ).execute()
         values = result.get('values', [])
 
+        row_values = []
+        for i, value in enumerate(values, start=2):
+            row_values.append([i] + value)
         # There must be a value in the 8th column to check if there is a YouTube ID
-        values = filter(lambda x: len(x) >= 8 and x[7].strip(), values)
-        return [SpreadsheetTalk(*value) for value in values]
+        row_values = filter(lambda x: len(x) >= 9 and x[8].strip(), row_values)
+
+        return [SpreadsheetTalk(self, *value) for value in row_values]
