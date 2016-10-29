@@ -14,4 +14,8 @@ youtube = YouTube()
 
 talks = spreadsheet.get_youtube_talks()
 ids = [talk.youtube_id for talk in talks]
-print(youtube.get_private_videos(ids))
+private_videos = youtube.get_private_videos(ids)
+
+for private_video in private_videos:
+    talk = filter(lambda x: x.youtube_id == private_video.youtube_id, talks)[0]
+    private_video.publish(talk.title, '')

@@ -30,12 +30,8 @@ if credentials is None or credentials.invalid:
 
 service = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, http=credentials.authorize(httplib2.Http()))
 
-# Retrieve the contentDetails part of the channel resource for the
-# authenticated user's channel.
-video_response = service.videos().list(
-    id='v4dXM35OWWE',
-    part='contentDetails'
-).execute()
+
+SCIENCE_AND_TECHNOLOGY_CATEGORY_ID = 28
 
 
 class YouTubeStatus(object):
@@ -47,8 +43,27 @@ class YouTubeStatus(object):
 
 class YouTubeVideo(object):
 
-    def __init__(self, youtube_id):
+    def __init__(self, youtube_id, data):
+        self.data = data
         self.youtube_id = youtube_id
+
+    def publish(self, title, description):
+        snippet = self.data['snippet']
+        snippet.update({
+            'title': title,
+            'description': description,
+            'categoryId': SCIENCE_AND_TECHNOLOGY_CATEGORY_ID
+        })
+
+        body = {
+            'id': self.youtube_id,
+            'status': {
+                'privacyStatus': YouTubeStatus.PUBLIC
+            },
+            'snippet': self.data['snippet']
+        }
+
+        service.videos().update(part='status,snippet', body=body).execute()
 
 
 class YouTube(object):
@@ -56,10 +71,10 @@ class YouTube(object):
     def get_private_videos(self, ids):
         response = service.videos().list(
             id=','.join(ids),
-            part='status'
+            part='status,snippet'
         ).execute()
 
         items = response['items']
         items = filter(lambda item: item['status']['privacyStatus'] == YouTubeStatus.PRIVATE, items)
 
-        return [YouTubeVideo(item['id']) for item in items]
+        return [YouTubeVideo(item['id'], item) for item in items]
