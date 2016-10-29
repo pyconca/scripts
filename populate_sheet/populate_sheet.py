@@ -2,11 +2,13 @@ import argparse
 from operator import itemgetter
 
 from lib.spreadsheet import Spreadsheet
+from lib.spreadsheet import parser as spreadsheet_parser
 from lib.talks import get_talks
 from lib.talks import parser as talks_parser
 
-parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=[talks_parser])
-parser.add_argument('spreadsheet_id', help='Google Spreadsheet ID')
+
+parent_parsers = [talks_parser, spreadsheet_parser]
+parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', parents=parent_parsers)
 
 args = parser.parse_args()
 
