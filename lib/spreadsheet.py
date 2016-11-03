@@ -54,6 +54,9 @@ service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discove
 
 
 class Columns(object):
+    """
+    Column keys and names can be added here.
+    """
 
     COLUMNS = [
         ('SLUG',                'Slug'),
@@ -68,12 +71,12 @@ class Columns(object):
         ('NOTES',               'Notes'),
     ]
 
-    SLUG_NAMES = [column[0] for column in COLUMNS]
+    KEYS = [column[0] for column in COLUMNS]
 
     NAMES = [column[1] for column in COLUMNS]
 
-    NAME_TO_LETTER = dict([(column, ascii) for column, ascii in zip(SLUG_NAMES, string.ascii_uppercase)])
-    NAME_TO_NUMBER = dict([(column, number) for number, column in enumerate(SLUG_NAMES)])
+    NAME_TO_LETTER = dict([(column, ascii) for column, ascii in zip(KEYS, string.ascii_uppercase)])
+    NAME_TO_NUMBER = dict([(column, number) for number, column in enumerate(KEYS)])
 
 
 class SpreadsheetTalk(object):
