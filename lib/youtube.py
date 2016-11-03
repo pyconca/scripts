@@ -65,7 +65,6 @@ class YouTubeVideo(object):
         }
 
         self.data = service.videos().update(part='status,snippet', body=body).execute()
-        return self.data
 
 
 class YouTube(object):
