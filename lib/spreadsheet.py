@@ -1,4 +1,5 @@
 import argparse
+import string
 
 import httplib2
 import os
@@ -52,9 +53,32 @@ discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
 service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
 
 
+class Columns(object):
+
+    COLUMNS = [
+        ('SLUG',                'Slug'),
+        ('DAY',                 'Day'),
+        ('TIME',                'Time'),
+        ('ROOM',                'Room'),
+        ('PRESENTATION_TITLE',  'Presentation Title'),
+        ('DESCRIPTION',         'Description'),
+        ('SPEAKER',             'Speaker'),
+        ('YOUTUBE_ID',          'YouTube ID'),
+        ('PUBLISHED_STATUS',    'Published Status'),
+        ('NOTES',               'Notes'),
+    ]
+
+    SLUG_NAMES = [column[0] for column in COLUMNS]
+
+    NAMES = [column[1] for column in COLUMNS]
+
+    NAME_TO_LETTER = dict([(column, ascii) for column, ascii in zip(SLUG_NAMES, string.ascii_uppercase)])
+    NAME_TO_NUMBER = dict([(column, number) for number, column in enumerate(SLUG_NAMES)])
+
+
 class SpreadsheetTalk(object):
 
-    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_id=None):
+    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_id=None, published_status=False):
         self.spreadsheet = spreadsheet
         self.row = row
         self.slug = slug
@@ -65,17 +89,15 @@ class SpreadsheetTalk(object):
         self.description = description
         self.speakers = speakers
         self.youtube_id = youtube_id
+        self._published_status = published_status
 
     @property
     def published_status(self):
-        """
-        TODO: Update to return actual status
-        """
-        return None
+        return self._published_status
 
     @published_status.setter
     def published_status(self, value):
-        range = 'I' + str(self.row)
+        range = Columns.NAME_TO_LETTER['PUBLISHED_STATUS'] + str(self.row)
 
         body = {
             'values': [[str(value)]]
@@ -84,6 +106,7 @@ class SpreadsheetTalk(object):
         service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet.spreadsheet_id, range=range, body=body, valueInputOption='RAW'
         ).execute()
+        self._published_status = value
 
 
 class Spreadsheet(object):
@@ -96,10 +119,7 @@ class Spreadsheet(object):
 
         body = {
             'values': [
-                [
-                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Description', 'Speaker', 'YouTube ID',
-                    'Published Status', 'Notes'
-                ]
+                Columns.NAMES
             ]
         }
 
@@ -165,8 +185,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 7,
-                            'endColumnIndex': 8,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
                         }
                     ],
                     'booleanRule': {
@@ -194,8 +214,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 7,
-                            'endColumnIndex': 8,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
                         }
                     ],
                     'booleanRule': {
@@ -246,24 +266,23 @@ class Spreadsheet(object):
         Find unpublished talks that have YouTube IDs. This means they're ready to be published.
         """
 
+        range = 'A2:{}'.format(Columns.NAME_TO_LETTER['PUBLISHED_STATUS'])
+
         result = service.spreadsheets().values().get(
-            spreadsheetId=self.spreadsheet_id, range='A2:I'
+            spreadsheetId=self.spreadsheet_id, range=range
         ).execute()
         values = result.get('values', [])
 
         row_values = []
         for i, value in enumerate(values, start=2):
             row_values.append([i] + value)
-        # There must be a value in the 8th column to check if there is a YouTube ID
 
-        def row_is_unpublished(row):
-            if len(row) >= 9 and row[8].strip():  # has a YouTube ID
-                if len(row) < 10:
-                    return True
-                elif row[9].lower() != 'true':
+        def is_unpublished(talk):
+            if talk.youtube_id:
+                if not talk.published_status or talk.published_status.lower() != 'true':
                     return True
             return False
 
-        row_values = filter(row_is_unpublished, row_values)
-
-        return [SpreadsheetTalk(self, *value[:9]) for value in row_values]
+        talks = [SpreadsheetTalk(self, *value[:11]) for value in row_values]
+        unpublished_talks = filter(is_unpublished, talks)
+        return unpublished_talks
