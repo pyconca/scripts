@@ -69,13 +69,12 @@ class YouTubeVideo(object):
 
 class YouTube(object):
 
-    def get_private_videos(self, ids):
+    def get_videos(self, ids):
         response = service.videos().list(
             id=','.join(ids),
             part='status,snippet'
         ).execute()
 
         items = response['items']
-        items = filter(lambda item: item['status']['privacyStatus'] == YouTubeStatus.PRIVATE, items)
 
         return [YouTubeVideo(item['id'], item) for item in items]

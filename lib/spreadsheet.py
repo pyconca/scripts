@@ -241,9 +241,13 @@ class Spreadsheet(object):
             spreadsheetId=self.spreadsheet_id, range='A2', valueInputOption='RAW', body=body
         ).execute()
 
-    def get_youtube_talks(self):
+    def get_unpublished_youtube_talks(self):
+        """
+        Find unpublished talks that have YouTube IDs. This means they're ready to be published.
+        """
+
         result = service.spreadsheets().values().get(
-            spreadsheetId=self.spreadsheet_id, range='A2:H'
+            spreadsheetId=self.spreadsheet_id, range='A2:I'
         ).execute()
         values = result.get('values', [])
 
@@ -251,6 +255,15 @@ class Spreadsheet(object):
         for i, value in enumerate(values, start=2):
             row_values.append([i] + value)
         # There must be a value in the 8th column to check if there is a YouTube ID
-        row_values = filter(lambda x: len(x) >= 9 and x[8].strip(), row_values)
 
-        return [SpreadsheetTalk(self, *value) for value in row_values]
+        def row_is_unpublished(row):
+            if len(row) >= 9 and row[8].strip():  # has a YouTube ID
+                if len(row) < 10:
+                    return True
+                elif row[9].lower() != 'true':
+                    return True
+            return False
+
+        row_values = filter(row_is_unpublished, row_values)
+
+        return [SpreadsheetTalk(self, *value[:9]) for value in row_values]

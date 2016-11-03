@@ -13,17 +13,17 @@ spreadsheet = Spreadsheet(args.spreadsheet_id)
 youtube = YouTube()
 
 print('Getting all talks from spreadsheet with YouTube IDs')
-talks = spreadsheet.get_youtube_talks()
+talks = spreadsheet.get_unpublished_youtube_talks()
+print('{} unpublished talks'.format(len(talks)))
 ids = [talk.youtube_id for talk in talks]
-print('Getting private videos from YouTube')
-private_videos = youtube.get_private_videos(ids)
-print('{} private videos found on YouTube'.format(len(private_videos)))
+print('Getting videos from YouTube')
+videos = youtube.get_videos(ids)
 
-for private_video in private_videos:
-    talk = filter(lambda x: x.youtube_id == private_video.youtube_id, talks)[0]
+for talk in talks:
     print('Unpublished talk: {}'.format(talk.title))
-    print('\tYouTube ID: {}'.format(private_video.youtube_id))
+    video = filter(lambda x: talk.youtube_id == x.youtube_id, videos)[0]
+    print('\tYouTube ID: {}'.format(video.youtube_id))
     print('\tSetting metadata and setting status to UNLISTED')
-    private_video.publish(talk.title, talk.description)
+    video.publish(talk.title, talk.description)
     print('\tUpdating spreadsheet to set published status to true')
     talk.published_status = True
