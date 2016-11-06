@@ -1,50 +1,54 @@
 <html>
-<head>
-    <meta charset="UTF-8">
-    <style type="text/css">
+    <head>
+        <meta charset="UTF-8">
+        <style type="text/css">
 
-        body {
-            color: #333;
-            font-family: "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
-            line-height: 1.5;
-        }
+            body {
+                border: 32px solid #2E7BD5;
+                color: #2E7BD5;
+                font-family: "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+                margin: 0;
+            }
 
-        .logo {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-        }
+            .logo {
+                position: fixed;
+                top: 62px;
+                left: 62px;
+                height: 245px;
+            }
 
-        .dates {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            font-size: 1.75em;
-        }
+            .dates {
+                position: fixed;
+                bottom: 62px;
+                left: 62px;
+                font-size: 1.75em;
+            }
 
-        .title {
-            position: fixed;
-            left: 260px;
-            top: 225px;
-            font-size: 1.75em;
-            margin-right: 30px;
-        }
+            .copy {
+                position: fixed;
+                left: 260px;
+                top: 280px;
+            }
 
-        .speaker {
-            position: fixed;
-            left: 260px;
-            top: 325px;
-            font-size: 1.75em;
-        }
+            .title {
+                font-size: 2.5em;
+                margin-right: 45px;
+            }
 
-    </style>
-</head>
-<body>
-    <div>
-        <img class="logo" src="{{ BASE_DIR }}/images/2016-pycon-logo.svg" height="200px"/>
-        <div class="dates">12-15 November 2016, Toronto</div>
-        <div class="title">{{ talk['title'] }}</div>
-        <div class="speaker">{{ talk['speakers'] }}</div>
-    </div>
-</body>
+            .speaker {
+                font-size: 2.0em;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div>
+            <img class="logo" src="{{ BASE_DIR }}/images/2016-pycon-logo.svg"/>
+            <div class="dates">12-15 November 2016, Toronto</div>
+            <div class="copy">
+                <p class="title">{{ talk['title'] }}</p>
+                <p class="speaker">{{ talk['speakers'] }}</p>
+            </div>
+        </div>
+    </body>
 </html>
