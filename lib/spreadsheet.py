@@ -246,13 +246,13 @@ class Spreadsheet(object):
 
         values = [
             [
-                talk['slug'],
-                talk['date'],
-                talk['start_time'],
-                talk['room'],
-                talk['title'],
-                talk['description'],
-                talk['speakers'],
+                talk.slug,
+                talk.date,
+                talk.start_time,
+                talk.room,
+                talk.title,
+                talk.description,
+                talk.speakers,
             ]
             for talk in talks
         ]
