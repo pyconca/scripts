@@ -9,7 +9,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
 
-parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', add_help=False)
+parser = argparse.ArgumentParser(description='Google Sheets API Wrapper', add_help=False)
 parser.add_argument('spreadsheet_id', help='Google Spreadsheet ID')
 
 # If modifying these scopes, delete your previously saved credentials

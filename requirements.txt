@@ -1,5 +1,6 @@
 Jinja2==2.8
 MarkupSafe==0.23
+PyGithub==1.29
 beautifulsoup4==4.5.1
 google-api-python-client==1.5.3
 requests==2.11.1
