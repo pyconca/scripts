@@ -1,3 +1,6 @@
+import argparse
+import string
+
 import httplib2
 import os
 
@@ -5,6 +8,9 @@ from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
 from oauth2client.file import Storage
+
+parser = argparse.ArgumentParser(description='Generate YouTube video slides from JSON data', add_help=False)
+parser.add_argument('spreadsheet_id', help='Google Spreadsheet ID')
 
 # If modifying these scopes, delete your previously saved credentials
 # at ~/.credentials/sheets.googleapis.com-pyconca-video-production.json
@@ -41,16 +47,74 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
+credentials = get_credentials()
+http = credentials.authorize(httplib2.Http())
+discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
+service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
+
+
+class Columns(object):
+    """
+    Column keys and names can be added here.
+    """
+
+    COLUMNS = [
+        ('SLUG',                'Slug'),
+        ('DAY',                 'Day'),
+        ('TIME',                'Time'),
+        ('ROOM',                'Room'),
+        ('PRESENTATION_TITLE',  'Presentation Title'),
+        ('DESCRIPTION',         'Description'),
+        ('SPEAKER',             'Speaker'),
+        ('YOUTUBE_ID',          'YouTube ID'),
+        ('PUBLISHED_STATUS',    'Published Status'),
+        ('NOTES',               'Notes'),
+    ]
+
+    KEYS = [column[0] for column in COLUMNS]
+
+    NAMES = [column[1] for column in COLUMNS]
+
+    NAME_TO_LETTER = dict([(column, ascii) for column, ascii in zip(KEYS, string.ascii_uppercase)])
+    NAME_TO_NUMBER = dict([(column, number) for number, column in enumerate(KEYS)])
+
+
+class SpreadsheetTalk(object):
+
+    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_id=None, published_status=False):
+        self.spreadsheet = spreadsheet
+        self.row = row
+        self.slug = slug
+        self.date = date
+        self.start_time = start_time
+        self.room = room
+        self.title = title
+        self.description = description
+        self.speakers = speakers
+        self.youtube_id = youtube_id
+        self._published_status = published_status
+
+    @property
+    def published_status(self):
+        return self._published_status
+
+    @published_status.setter
+    def published_status(self, value):
+        range = Columns.NAME_TO_LETTER['PUBLISHED_STATUS'] + str(self.row)
+
+        body = {
+            'values': [[str(value)]]
+        }
+
+        service.spreadsheets().values().update(
+            spreadsheetId=self.spreadsheet.spreadsheet_id, range=range, body=body, valueInputOption='RAW'
+        ).execute()
+        self._published_status = value
+
 
 class Spreadsheet(object):
 
     def __init__(self, spreadsheet_id):
-        credentials = get_credentials()
-        http = credentials.authorize(httplib2.Http())
-        discovery_url = ('https://sheets.googleapis.com/$discovery/rest?version=v4')
-        service = discovery.build('sheets', 'v4', http=http, discoveryServiceUrl=discovery_url)
-
-        self.service = service
         self.spreadsheet_id = spreadsheet_id
 
     def create_header(self):
@@ -58,14 +122,11 @@ class Spreadsheet(object):
 
         body = {
             'values': [
-                [
-                    'Slug', 'Day', 'Time', 'Room', 'Presentation Title', 'Speaker', 'YouTube ID',
-                    'YouTube Status', 'Notes'
-                ]
+                Columns.NAMES
             ]
         }
 
-        self.service.spreadsheets().values().update(
+        service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range='A1', valueInputOption='RAW', body=body
         ).execute()
 
@@ -113,7 +174,7 @@ class Spreadsheet(object):
             }
         })
 
-        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+        service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                            body={'requests': requests}).execute()
 
     def add_conditional_formatting(self):
@@ -127,8 +188,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 6,
-                            'endColumnIndex': 7,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
                         }
                     ],
                     'booleanRule': {
@@ -156,8 +217,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': 6,
-                            'endColumnIndex': 7,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
                         }
                     ],
                     'booleanRule': {
@@ -177,7 +238,7 @@ class Spreadsheet(object):
             }
         })
 
-        self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
+        service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheet_id,
                                                 body={'requests': requests}).execute()
 
     def add_talks(self, talks):
@@ -185,12 +246,13 @@ class Spreadsheet(object):
 
         values = [
             [
-                talk['slug'],                   # Slug
-                talk['date'],                   # Date
-                talk['start_time'],          # Time
-                talk['room'],                   # Room
-                talk['title'],               # Title
-                talk['speakers'],            # Speakers
+                talk['slug'],
+                talk['date'],
+                talk['start_time'],
+                talk['room'],
+                talk['title'],
+                talk['description'],
+                talk['speakers'],
             ]
             for talk in talks
         ]
@@ -198,6 +260,32 @@ class Spreadsheet(object):
             'values': values
         }
 
-        self.service.spreadsheets().values().update(
+        service.spreadsheets().values().update(
             spreadsheetId=self.spreadsheet_id, range='A2', valueInputOption='RAW', body=body
         ).execute()
+
+    def get_unpublished_youtube_talks(self):
+        """
+        Find unpublished talks that have YouTube IDs. This means they're ready to be published.
+        """
+
+        range = 'A2:{}'.format(Columns.NAME_TO_LETTER['PUBLISHED_STATUS'])
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=self.spreadsheet_id, range=range
+        ).execute()
+        values = result.get('values', [])
+
+        row_values = []
+        for i, value in enumerate(values, start=2):
+            row_values.append([i] + value)
+
+        def is_unpublished(talk):
+            if talk.youtube_id:
+                if not talk.published_status or talk.published_status.lower() != 'true':
+                    return True
+            return False
+
+        talks = [SpreadsheetTalk(self, *value[:11]) for value in row_values]
+        unpublished_talks = filter(is_unpublished, talks)
+        return unpublished_talks
