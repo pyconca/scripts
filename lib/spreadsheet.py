@@ -97,7 +97,7 @@ class SpreadsheetTalk(object):
 
     @property
     def youtube_id(self):
-        p = re.compile('\b([A-Za-z0-9_-]{11})\b')  # this should capture
+        p = re.compile('\b([A-Za-z0-9_-]{11})\b')  # this should capture the ID from most or all YouTube URLs
         match = p.findall(self.url)
         assert len(match) == 1, 'Zero or more than one YouTube IDs found in '.format(self.url)
         return match[0]
