@@ -4,6 +4,7 @@ import string
 import httplib2
 import os
 
+import re
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
@@ -66,7 +67,7 @@ class Columns(object):
         ('PRESENTATION_TITLE',  'Presentation Title'),
         ('DESCRIPTION',         'Description'),
         ('SPEAKER',             'Speaker'),
-        ('YOUTUBE_ID',          'YouTube ID'),
+        ('YOUTUBE_URL',         'YouTube URL'),
         ('PUBLISHED_STATUS',    'Published Status'),
         ('NOTES',               'Notes'),
     ]
@@ -81,7 +82,7 @@ class Columns(object):
 
 class SpreadsheetTalk(object):
 
-    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_id=None, published_status=False):
+    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_url=None, published_status=False):
         self.spreadsheet = spreadsheet
         self.row = row
         self.slug = slug
@@ -91,8 +92,15 @@ class SpreadsheetTalk(object):
         self.title = title
         self.description = description
         self.speakers = speakers
-        self.youtube_id = youtube_id
+        self.youtube_url = youtube_url
         self._published_status = published_status
+
+    @property
+    def youtube_id(self):
+        p = re.compile('\b([A-Za-z0-9_-]{11})\b')  # this should capture the ID from most or all YouTube URLs
+        match = p.findall(self.url)
+        assert len(match) == 1, 'Zero or more than one YouTube IDs found in '.format(self.url)
+        return match[0]
 
     @property
     def published_status(self):
@@ -188,8 +196,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
-                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_URL'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_URL'] + 1,
                         }
                     ],
                     'booleanRule': {
@@ -217,8 +225,8 @@ class Spreadsheet(object):
                         {
                             'sheetId': 0,
                             'startRowIndex': 1,
-                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'],
-                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_ID'] + 1,
+                            'startColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_URL'],
+                            'endColumnIndex': Columns.NAME_TO_NUMBER['YOUTUBE_URL'] + 1,
                         }
                     ],
                     'booleanRule': {
