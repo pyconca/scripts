@@ -10,6 +10,11 @@
                 margin: 0;
             }
 
+            p {
+                margin: 0;
+                padding: 0;
+            }
+
             .logo {
                 position: fixed;
                 top: 62px;
@@ -21,7 +26,7 @@
                 position: fixed;
                 bottom: 62px;
                 left: 62px;
-                font-size: 1.75em;
+                font-size: 2.50em;
             }
 
             .copy {
@@ -31,12 +36,24 @@
             }
 
             .title {
-                font-size: 2.5em;
-                margin-right: 55px;
+                font-size: 5.5em;
+                margin: 0.5em 125px 0 0;
             }
 
             .speaker {
-                font-size: 2.0em;
+                font-size: 3.5em;
+                margin: 1.0em 55px 0 0;
+                color: #5896DE;
+            }
+
+            .sponsors {
+                position: fixed;
+                bottom: 62px;
+                right: 55px;
+            }
+
+            .sponsor-logo {
+               width: 350px;
             }
 
         </style>
@@ -50,6 +67,9 @@
                 {% if talk.speakers is not none %}
                     <p class="speaker">{{ talk.speakers }}</p>
                 {% endif %}
+            </div>
+            <div class="sponsors">
+                <img class="sponsor-logo" src="{{ BASE_DIR }}/images/mackenzie-investments.svg" />
             </div>
         </div>
     </body>
