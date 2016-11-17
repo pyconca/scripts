@@ -8,6 +8,18 @@ parser.add_argument('--schedule-path', dest='schedule_path', help='URL to schedu
 parser.add_argument('--talk-root', dest='talk_root', help='URL to the root directory for JSON talks', default='https://2016.pycon.ca/en/schedule/')
 
 
+class Talk(object):
+
+    def __init__(self, room, slug, date, title, description, start_time, speakers):
+        self.room           = room
+        self.slug           = slug
+        self.date           = date
+        self.title          = title
+        self.description    = description
+        self.start_time     = start_time
+        self.speakers       = speakers
+
+
 def get_talks(schedule_path, talk_root):
     response = requests.get(schedule_path)
     assert response.status_code == 200
@@ -23,30 +35,34 @@ def get_talks(schedule_path, talk_root):
                         response = requests.get(talk_root + slug + '.json')
                         assert response.status_code == 200
 
-                        talk = {
-                            'room': room,
-                            'slug': slug,
-                        }
-
-                        talk.update(response.json())
-                        talk['date'] = talk['date']
-                        description = talk['description'] = BeautifulSoup(talk['description'], 'html.parser').get_text()
+                        response_json = response.json()
+                        description = BeautifulSoup(response_json['description'], 'html.parser').get_text()
                         description = description.split('Bio')[0]
                         description = description.rsplit('\n', 1)[0]
-                        talk['description'] = description
+
+                        talk = Talk(**{
+                            'date': response_json.get('date'),
+                            'room': room,
+                            'slug': slug,
+                            'title': response_json.get('title'),
+                            'speakers': response_json.get('speakers'),
+                            'start_time': response_json.get('start_time'),
+                            'description': description
+                        })
                         talks.append(talk)
+
             elif 'keynote' in entry['title'].lower():
                 # there is special handling for keynotes because they're not in the same format as other talks
-                slug = 'keynote-' + entry['content'].lower().replace(' ', '-')  # for keynotes, entry['content'] is speaker's name
-                talk = {
+
+                response_json = Talk(**{
                     'date': day['date'],
                     'room': '1-067',
-                    'slug': slug,
+                    'slug': entry['link'],
                     'title': entry['title'],
                     'speakers': entry['content'],
                     'start_time': entry['start_time'],
                     'description': ''   # keynotes do not have descriptions
-                }
-                talks.append(talk)
+                })
+                talks.append(response_json)
 
     return talks

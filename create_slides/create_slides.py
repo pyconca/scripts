@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 
 def generate_html(talk):
-    html_room_dir = os.path.join(html_dir, talk['room'], str(talk['date']))
+    html_room_dir = os.path.join(html_dir, talk.room, str(talk.date))
 
     try:
         os.makedirs(html_room_dir)
@@ -30,8 +30,8 @@ def generate_html(talk):
         else:
             raise
 
-    start_time = talk['start_time'].replace(':', '')  # it's no good to have ':' in a filename
-    file_name = '{}_{}.html'.format(start_time, talk['slug'])
+    start_time = talk.start_time.replace(':', '')  # it's no good to have ':' in a filename
+    file_name = '{}_{}.html'.format(start_time, talk.slug)
     html_path = os.path.join(html_room_dir, file_name)
 
     env = Environment(loader=FileSystemLoader('create_slides/templates'))

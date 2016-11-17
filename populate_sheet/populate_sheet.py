@@ -1,5 +1,5 @@
 import argparse
-from operator import itemgetter
+from operator import attrgetter
 
 from lib.spreadsheet import Spreadsheet
 from lib.spreadsheet import parser as spreadsheet_parser
@@ -18,7 +18,7 @@ print('Adding conditional formatting')
 spreadsheet.add_conditional_formatting()
 print('Getting talks')
 talks = get_talks(args.schedule_path, args.talk_root)
-sorted(talks, key=itemgetter('date', 'start_time', 'room'))
+sorted(talks, key=attrgetter('date', 'start_time', 'room'))
 print('Adding talks to spreadsheet')
 spreadsheet.add_talks(talks)
 print('Spreadsheet populated!')

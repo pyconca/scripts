@@ -46,8 +46,10 @@
             <img class="logo" src="{{ BASE_DIR }}/images/2016-pycon-logo.svg"/>
             <div class="dates">12-15 November 2016, Toronto</div>
             <div class="copy">
-                <p class="title">{{ talk['title'] }}</p>
-                <p class="speaker">{{ talk['speakers'] }}</p>
+                <p class="title">{{ talk.title }}</p>
+                {% if talk.speakers is not none %}
+                    <p class="speaker">{{ talk.speakers }}</p>
+                {% endif %}
             </div>
         </div>
     </body>
