@@ -82,7 +82,8 @@ class Columns(object):
 
 class SpreadsheetTalk(object):
 
-    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description, speakers, youtube_url=None, published_status=False):
+    def __init__(self, spreadsheet, row, slug, date, start_time, room, title, description=None,
+                 speakers=None, youtube_url=None, published_status=False):
         self.spreadsheet = spreadsheet
         self.row = row
         self.slug = slug
@@ -97,9 +98,13 @@ class SpreadsheetTalk(object):
 
     @property
     def youtube_id(self):
-        p = re.compile('\b([A-Za-z0-9_-]{11})\b')  # this should capture the ID from most or all YouTube URLs
-        match = p.findall(self.url)
-        assert len(match) == 1, 'Zero or more than one YouTube IDs found in '.format(self.url)
+        if not self.youtube_url:
+            return None
+
+        p = re.compile(r'\b[A-Za-z0-9_-]{11}\b')  # this should capture the ID from most or all YouTube URLs
+        match = p.findall(self.youtube_url)
+        print(self.speakers)
+        assert len(match) == 1, 'Zero or more than one YouTube IDs found in {}'.format(self.youtube_url)
         return match[0]
 
     @property
@@ -264,6 +269,7 @@ class Spreadsheet(object):
             ]
             for talk in talks
         ]
+
         body = {
             'values': values
         }
@@ -282,11 +288,7 @@ class Spreadsheet(object):
         result = service.spreadsheets().values().get(
             spreadsheetId=self.spreadsheet_id, range=range
         ).execute()
-        values = result.get('values', [])
-
-        row_values = []
-        for i, value in enumerate(values, start=2):
-            row_values.append([i] + value)
+        rows = result.get('values', [])
 
         def is_unpublished(talk):
             if talk.youtube_id:
@@ -294,6 +296,21 @@ class Spreadsheet(object):
                     return True
             return False
 
-        talks = [SpreadsheetTalk(self, *value[:11]) for value in row_values]
+        def clean_value(value):
+            if value:
+                value = value.strip()
+            if not value:
+                return None
+            return value
+
+        talks = []
+        for row in rows:
+            # Pad values to match total number of columns
+            row += [None] * (len(Columns.KEYS) - len(row))
+
+            # Strip whitespace and replace empty values with None
+            row = [clean_value(value) for value in row]
+            talks.append(SpreadsheetTalk(self, *row))
+
         unpublished_talks = filter(is_unpublished, talks)
         return unpublished_talks
