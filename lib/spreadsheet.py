@@ -103,7 +103,6 @@ class SpreadsheetTalk(object):
 
         p = re.compile(r'\b[A-Za-z0-9_-]{11}\b')  # this should capture the ID from most or all YouTube URLs
         match = p.findall(self.youtube_url)
-        print(self.speakers)
         assert len(match) == 1, 'Zero or more than one YouTube IDs found in {}'.format(self.youtube_url)
         return match[0]
 
@@ -304,13 +303,13 @@ class Spreadsheet(object):
             return value
 
         talks = []
-        for row in rows:
+        for i, row in enumerate(rows):
             # Pad values to match total number of columns
-            row += [None] * (len(Columns.KEYS) - len(row))
+            row += [None] * (len(Columns.KEYS) - len(row) - 1)
 
             # Strip whitespace and replace empty values with None
             row = [clean_value(value) for value in row]
-            talks.append(SpreadsheetTalk(self, *row))
+            talks.append(SpreadsheetTalk(self, i, *row))
 
         unpublished_talks = filter(is_unpublished, talks)
         return unpublished_talks

@@ -26,7 +26,8 @@ for talk in talks:
     video = filter(lambda x: talk.youtube_id == x.youtube_id, videos)[0]
     print('\tYouTube ID: {}'.format(video.youtube_id))
     print('\tSetting metadata and setting status to UNLISTED')
-    video.publish(talk.title, talk.description)
+    title = '{} ({})'.format(talk.title, talk.speakers)
+    video.publish(title, talk.description)
 
     print('\tAdding to website')
     git = Git(args.repo_user, args.repo)
