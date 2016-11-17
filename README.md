@@ -25,7 +25,7 @@ the credentials in `scripts/client_secret.json`
 
 ### Slide Generation Script
 
-The Slide Generation script takes certain JSON file with schedule and talk data,
+The Slide Generation script pulls JSONs from the web API that have schedule and talk data,
 and creates PNG slides. The slides are used as intros to the YouTube videos of
 PyCon talks.
 
